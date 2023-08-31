@@ -20,10 +20,10 @@
                     </th>
                     <th style="text-align: center;" width="200px">
                         <button v-if="state == 1" class="btn btn-danger" @click="end">
-                            <i class="bi bi-stop-btn-fill icon"></i>
+                            <i class="bi bi-stop-circle-fill icon"></i>
                         </button>
                         <button v-else class="btn btn-primary" @click="start">
-                            <i class="bi bi-play-btn-fill icon"></i>
+                            <i class="bi bi-play-circle-fill icon"></i>
                         </button>
                         <!-- <span>{{ usedTime }}</span> -->
                     </th>
