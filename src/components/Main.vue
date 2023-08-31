@@ -14,16 +14,19 @@
                 <tr>
                     <th></th>
                     <th v-for="n in codeNumber" style="text-align: center;">
-                        <i v-if="state == 0" class="bi bi-bag-dash icon"></i>
-                        <i v-if="state == 1" class="bi bi-bag-x-fill icon"></i>
+                        <i v-if="state == 0" class="bi bi-circle icon"></i>
+                        <i v-if="state == 1" class="bi bi-question-circle icon"></i>
                         <i v-if="state == 2" :class="options[secretCode[n - 1]]"></i>
                     </th>
-                    <th style="text-align: center;">
-                        <button v-if="state == 0" class="btn btn-primary" @click="start">开始</button>
-                        <button v-if="state == 1" class="btn btn-primary" @click="end">结束</button>
-                        <button v-if="state == 2" class="btn btn-primary" @click="start">再来</button>
+                    <th style="text-align: center;" width="200px">
+                        <button v-if="state == 1" class="btn btn-danger" @click="end">
+                            <i class="bi bi-stop-btn-fill icon"></i>
+                        </button>
+                        <button v-else class="btn btn-primary" @click="start">
+                            <i class="bi bi-play-btn-fill icon"></i>
+                        </button>
+                        <!-- <span>{{ usedTime }}</span> -->
                     </th>
-                    <th style="text-align: center;" width="100px">{{ usedTime }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -36,9 +39,15 @@
                     </td>
                     <td>
                         <button v-if="rowState[rowIndex] == 1" class="btn btn-primary" @click="submit(rowIndex)">提交</button>
-                    </td>
-                    <td>
-                        <span v-if="rowState[rowIndex] == 2">全对{{ rowResult[rowIndex][0] }}个，颜色对{{ rowResult[rowIndex][1] }}个</span>
+                        <span v-if="rowState[rowIndex] == 2 && rowResult[rowIndex][0] < codeNumber">
+                            <i v-for="n in rowResult[rowIndex][0]" class="bi bi-emoji-laughing icon-result1"></i>
+                            <i v-for="n in rowResult[rowIndex][1]" class="bi bi-emoji-smile icon-result2"></i>
+                        </span>
+                        <span v-if="rowState[rowIndex] == 2 && rowResult[rowIndex][0] == codeNumber">
+                            <i class="bi bi-emoji-heart-eyes-fill icon-result-success"></i>
+                            <i class="bi bi-emoji-kiss-fill icon-result-success"></i>
+                            <i class="bi bi-emoji-sunglasses-fill icon-result-success"></i>
+                        </span>
                     </td>
                 </tr>
             </tbody>
@@ -52,14 +61,14 @@ const N = 5;    // 多少个密码
 const M = 12;   // 最多可以猜多少次
 // 总共多少个选项，选项的内容用颜色表示
 const OPTIONS = [
-    'bi icon bi-1-circle-fill icon1',
-    'bi icon bi-2-circle-fill icon2',
-    'bi icon bi-3-circle-fill icon3',
-    'bi icon bi-4-circle-fill icon4',
-    'bi icon bi-5-circle-fill icon5',
-    'bi icon bi-6-circle-fill icon6',
-    'bi icon bi-7-circle-fill icon7',
-    'bi icon bi-8-circle-fill icon8',
+    'bi icon bi-circle-fill icon1',
+    'bi icon bi-circle-fill icon2',
+    'bi icon bi-circle-fill icon3',
+    'bi icon bi-circle-fill icon4',
+    'bi icon bi-circle-fill icon5',
+    'bi icon bi-circle-fill icon6',
+    'bi icon bi-circle-fill icon7',
+    'bi icon bi-circle-fill icon8',
 ];
 
 // 随机生成一个密码
@@ -121,7 +130,7 @@ export default {
             usedTime: "00:00:00",   // 用了多少时间
             activeRow: -1,          // 活动行
             activeColumn: -1,       // 活动列
-            toolSticky: true,       // 工具条固定
+            toolSticky: false,       // 工具条固定
         };
     },
 
@@ -181,9 +190,19 @@ export default {
         },
 
         // 向表格中插入元素
-        insert(i) {
-            if (this.activeRow >= 0 && this.activeColumn >= 0) {
-                this.rows[this.activeRow][this.activeColumn] = i;
+        insert(value) {
+            if (this.activeRow < 0 || this.activeColumn < 0) {
+                return;
+                
+            }
+
+            this.rows[this.activeRow][this.activeColumn] = value;
+
+            // 并且把同行中其他列的同样颜色去除
+            for (var j = 0; j < this.rows[this.activeRow].length; j++) {
+                if (j != this.activeColumn && this.rows[this.activeRow][j] == value) {
+                    this.rows[this.activeRow][j] = -1;
+                }
             }
 
             this.validateRow();

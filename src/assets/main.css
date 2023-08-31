@@ -49,10 +49,6 @@ th, td {
   vertical-align: middle;
 }
 
-span {
-  border: 1px solid white;
-}
-
 .icon {
   font-size: 30px;
 }
@@ -65,8 +61,23 @@ span {
   color: #888888;
 }
 
+.icon-result1 {
+  font-size: 20px;
+  color: black;
+}
+
+.icon-result2 {
+  font-size: 20px;
+  color: black;
+}
+
+.icon-result-success {
+  font-size: 30px;
+  color: red;
+}
+
 .icon1 {
-  color: gray;
+  color: rgb(205, 205, 205);
 }
 
 .icon2 {
