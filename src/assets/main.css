@@ -1,0 +1,98 @@
+@import './base.css';
+
+#app {
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 2rem;
+
+  font-weight: normal;
+}
+
+a,
+.green {
+  text-decoration: none;
+  color: hsla(160, 100%, 37%, 1);
+  transition: 0.4s;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
+}
+
+@media (min-width: 1024px) {
+  /* body {
+    display: flex;
+    place-items: center;
+  }
+
+  #app {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 0 2rem;
+  } */
+}
+
+.tool {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.tool-sticky {
+  position: sticky;
+  top: 80px;
+}
+
+th, td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+span {
+  border: 1px solid white;
+}
+
+.icon {
+  font-size: 30px;
+}
+
+.icon-blank {
+  color: #cccccc;
+}
+
+.icon-ready {
+  color: #888888;
+}
+
+.icon1 {
+  color: gray;
+}
+
+.icon2 {
+  color: black;
+}
+
+.icon3 {
+  color: green;
+}
+
+.icon4 {
+  color: #c9c905;
+}
+
+.icon5 {
+  color: red;
+}
+
+.icon6 {
+  color: orange;
+}
+
+.icon7 {
+  color: blue;
+}
+
+.icon8 {
+  color: purple;
+}
