@@ -27,12 +27,12 @@
   } */
 }
 
-.tool {
+.option {
   text-align: center;
   vertical-align: middle;
 }
 
-.tool-sticky {
+.option-sticky {
   position: sticky;
   top: 80px;
 }
@@ -105,4 +105,8 @@ th, td {
   .icon {
     font-size: 25px;
   }
+}
+
+.tool {
+  background-color: #d5d6f4;
 }

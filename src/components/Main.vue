@@ -2,10 +2,10 @@
     <div>
         <h1 style="text-align: center; color:blue"><i class="bi bi-bag-heart-fill"></i>Secret Code</h1>
     </div>
-    <div class="tool" :class="{'tool-sticky': toolSticky}">
+    <div class="option" :class="{'option-sticky': optionSticky}">
         <i v-for="n in optionNumber" :class="options[n-1]" @click="insert(n-1)"></i>
-        <button type="button" class="btn" @click="toolSticky = !toolSticky">
-            <i class="bi" :class="{'bi-geo-fill': toolSticky, 'bi-geo': !toolSticky}"></i>
+        <button type="button" class="btn" @click="optionSticky = !optionSticky">
+            <i class="bi" :class="{'bi-geo-fill': optionSticky, 'bi-geo': !optionSticky}"></i>
         </button>
     </div>
     <div>
@@ -30,7 +30,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(row, rowIndex) in rows" :key="rowIndex">
+                <tr v-for="(row, rowIndex) in rows.slice(0, mainRowNumber)" :key="rowIndex">
                     <td class="text-center">{{ rowIndex + 1 }}</td>
                     <td v-for="(value, colIndex) in row" :class="{'table-primary': (rowIndex == activeRow && colIndex == activeColumn)}" @click="click(rowIndex, colIndex)">
                         <i v-if="value < 0 && rowIndex == activeRow" class="bi bi-circle icon icon-ready"></i>
@@ -50,15 +50,32 @@
                         </span>
                     </td>
                 </tr>
+
+                <tr><td :colspan="codeNumber + 2">草稿箱</td></tr>
+
+                <tr v-for="(row, rowIndex) in rows.slice(mainRowNumber, mainRowNumber + toolRowNumber)">
+                    <td class="text-center">{{ rowIndex + 1 }}</td>
+                    <td v-for="(value, colIndex) in row" :class="{'table-primary': (rowIndex + mainRowNumber == activeRow && colIndex == activeColumn)}" @click="click(mainRowNumber + rowIndex, colIndex)">
+                        <i v-if="value < 0 && rowIndex + mainRowNumber == activeRow" class="bi bi-circle icon icon-ready"></i>
+                        <i v-else-if="value < 0" class="bi bi-circle icon icon-blank"></i>
+                        <i v-else :class="options[value]"></i>
+                    </td>
+                    <td>
+                        <input type="text" v-model="toolInfo[rowIndex]">
+                    </td>
+                </tr>
             </tbody>
         </table>
-        
     </div>
 </template>
 
 <script>
 const N = 5;    // 多少个密码
+
 const M = 12;   // 最多可以猜多少次
+
+const M2 = 6;   // 草稿箱行数
+
 // 总共多少个选项，选项的内容用颜色表示
 const OPTIONS = [
     'bi icon bi-circle-fill icon1',
@@ -69,6 +86,15 @@ const OPTIONS = [
     'bi icon bi-circle-fill icon6',
     'bi icon bi-circle-fill icon7',
     'bi icon bi-circle-fill icon8',
+];
+
+const INFO = [
+    '含1',
+    '含1',
+    '含2',
+    '含2',
+    '含',
+    '不含',
 ];
 
 // 随机生成一个密码
@@ -97,7 +123,7 @@ export default {
     data() {
         // 用户猜测信息初始化
         var rows = [];
-        for (var i = 0; i < M; i++) {
+        for (var i = 0; i < M + M2; i++) {
             rows[i] = [];
             for (var j = 0; j < N; j++) {
                 rows[i][j] = -1;
@@ -118,6 +144,9 @@ export default {
 
         return {
             codeNumber: N,
+            mainRowNumber: M,
+            toolRowNumber: M2,
+            toolInfo: INFO.slice(),
             options: OPTIONS,
             optionNumber: OPTIONS.length,
             secretCode: secretCode, // 密码
@@ -125,12 +154,12 @@ export default {
             rows: rows,             // 用户猜测信息，N列，M行
             rowState: rowState,     // 行状态，0未标记完整，1标记完整，2已提交
             rowResult: rowResult,   // 行结果，[全对个数，颜色对个数]
-            startTime: new Date(),           // 开始时间
+            startTime: new Date(),  // 开始时间
             endTime: 0,             // 结束时间
             usedTime: "00:00:00",   // 用了多少时间
             activeRow: -1,          // 活动行
             activeColumn: -1,       // 活动列
-            toolSticky: false,       // 工具条固定
+            optionSticky: true,     // 选项条固定
         };
     },
 
@@ -155,6 +184,9 @@ export default {
             this.endTime = 0;
             this.activeRow = 0;
             this.activeColumn = 0;
+
+            // 清空草稿箱标签
+            this.toolInfo = INFO.slice();
         },
     
         // 结束游戏
@@ -174,6 +206,10 @@ export default {
 
         // 点击表格单元格
         click(i, j) {
+            if (this.state != 1) {
+                return;
+            }
+
             if (this.activeRow == i) { // 活跃行
                 if (this.activeColumn == j) {
                     this.rows[i][j] = -1;
@@ -182,8 +218,12 @@ export default {
                     this.activeColumn = j;
                 }
             }
-            else if (this.rows[i][j] >= 0) { // 非活跃行，有颜色，拷贝插入到活跃位置
+            else if (this.rowState[i] == 2) { // 非活跃行，已提交，拷贝插入到活跃位置
                 this.insert(this.rows[i][j]);
+            }
+            else {  //非活跃行，未提交，切换到当前行
+                this.activeRow = i;
+                this.activeColumn = j;
             }
             
             this.validateRow();
@@ -193,7 +233,6 @@ export default {
         insert(value) {
             if (this.activeRow < 0 || this.activeColumn < 0) {
                 return;
-                
             }
 
             this.rows[this.activeRow][this.activeColumn] = value;
@@ -258,8 +297,11 @@ export default {
             this.rowResult[i] = [result1, result2];
             this.rowState[i] = 2;
 
-            // 活跃到下一行
-            this.activeRow++;
+            // 活跃到下一个未提交行
+            
+            do {
+                this.activeRow++;
+            } while (this.activeRow < M && this.rowState[this.activeRow] == 2);
             this.activeColumn = 0;
 
             // 游戏通关了，结束
